@@ -1,0 +1,35 @@
+version: "3.8"
+
+services:
+  zookeeper:
+    image: zookeeper:3.8
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOO_ALLOW_ANONYMOUS_LOGIN: "yes"
+
+  kafka:
+    image: confluentinc/cp-kafka:7.3.0
+    container_name: kafka
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    depends_on:
+      - zookeeper
+
+  spark-jupyter:
+    image: mohamedamineellouze001/spark_scala_jupyter:v2
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./workspace:/workspace 
+    environment:
+      - JUPYTER_PORT=8888
+    working_dir: /workspace
